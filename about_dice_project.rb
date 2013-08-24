@@ -11,46 +11,50 @@ class DiceSet
 
   def roll size
     srand
-    @values = Array.new(size, rand(1..6))
+    @values = Array.new(size) { rand(1..6) }
   end
 end
 
-  class AboutDiceProject < Neo::Koan
-    def test_can_create_a_dice_set
-      dice = DiceSet.new
-      assert_not_nil dice
+class AboutDiceProject < Neo::Koan
+  def test_can_create_a_dice_set
+    dice = DiceSet.new
+    assert_not_nil dice
+  end
+
+  def test_rolling_the_dice_returns_a_set_of_integers_between_1_and_6
+    dice = DiceSet.new
+
+    dice.roll(5)
+    assert dice.values.is_a?(Array), "should be an array"
+    assert_equal 5, dice.values.size
+    dice.values.each do |value|
+      assert value >= 1 && value <= 6, "value #{value} must be between 1 and 6"
     end
+  end
 
-    def test_rolling_the_dice_returns_a_set_of_integers_between_1_and_6
-      dice = DiceSet.new
+  def test_dice_values_do_not_change_unless_explicitly_rolled
+    dice = DiceSet.new
+    dice.roll(5)
+    first_time = dice.values
+    second_time = dice.values
+    assert_equal first_time, second_time
+  end
 
-      dice.roll(5)
-      assert dice.values.is_a?(Array), "should be an array"
-      assert_equal 5, dice.values.size
-      dice.values.each do |value|
-        assert value >= 1 && value <= 6, "value #{value} must be between 1 and 6"
-      end
-    end
+  def test_dice_values_should_change_between_rolls
+    dice = DiceSet.new
 
-    def test_dice_values_do_not_change_unless_explicitly_rolled
-      dice = DiceSet.new
-      dice.roll(5)
-      first_time = dice.values
-      second_time = dice.values
-      assert_equal first_time, second_time
-    end
+    dice.roll(5)
+    first_time = dice.values
 
-    def test_dice_values_should_change_between_rolls
-      dice = DiceSet.new
+    dice.roll(5)
+    second_time = dice.values
 
-      dice.roll(5)
-      first_time = dice.values
-
-      dice.roll(5)
-      second_time = dice.values
-
-      assert_not_equal first_time, second_time,
-      "Two rolls should not be equal"
+    dices = Array.new(5) { dice.roll(5) }
+    
+    assert dices.uniq.count > 3 , "Amount of different rolls must be more than 3 over 5"
+    
+    #assert_not_equal first_time, second_time,
+    #{}"Two rolls should not be equal"
 
     # THINK ABOUT IT:
     #
